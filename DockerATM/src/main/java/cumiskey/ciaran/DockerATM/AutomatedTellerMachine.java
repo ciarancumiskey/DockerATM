@@ -1,9 +1,8 @@
 package cumiskey.ciaran.DockerATM;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import cumiskey.ciaran.DockerATM.model.Customer;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,19 +17,25 @@ public class AutomatedTellerMachine {
   //foresee this having a massive impact on performance.
   private TreeMap<Integer, Integer> notesAvailable = new TreeMap<>(Comparator.reverseOrder());
 
+  private List<Customer> customers = Collections.emptyList();
+
   private static Logger logger = Logger.getLogger("AutomatedTellerMachine");
 
-  public AutomatedTellerMachine(final int cashAvailable, final TreeMap<Integer, Integer> notesAvailable) {
+  public AutomatedTellerMachine(final int cashAvailable, final TreeMap<Integer, Integer> notesAvailable,
+                                final List<Customer> customers) {
     this.cashAvailable = cashAvailable;
     this.notesAvailable = notesAvailable;
+    this.customers = customers;
   }
 
-  public AutomatedTellerMachine(final TreeMap<Integer, Integer> notesAvailable) {
+  public AutomatedTellerMachine(final TreeMap<Integer, Integer> notesAvailable, final List<Customer> customers) {
     this.notesAvailable = notesAvailable;
+    //Iterate through each entry in the map, multiplying each note's value by how many of them there are.
     for (final Map.Entry<Integer, Integer> noteValueAndCount: notesAvailable.entrySet()) {
       final int totalValueOfNotes = noteValueAndCount.getValue() * noteValueAndCount.getKey();
       this.cashAvailable += totalValueOfNotes;
     }
+    this.customers = customers;
   }
 
   public int getCashAvailable() {

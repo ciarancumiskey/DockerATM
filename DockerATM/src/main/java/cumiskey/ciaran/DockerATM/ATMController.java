@@ -12,29 +12,26 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 public class ATMController {
 
   private final CustomerRepository repository;
+  private final AutomatedTellerMachine atm;
 
   private final Logger logger = LoggerFactory.getLogger(ATMController.class);
 
   ATMController(CustomerRepository repository) {
     this.repository = repository;
-  }
+    final TreeMap<Integer, Integer> initialFunds = new TreeMap<>();
+    initialFunds.put(5, 20); // 20 x €5 notes
+    initialFunds.put(10, 30); // 30 x €10 notes
+    initialFunds.put(20, 30); // 30 x €20 notes
+    initialFunds.put(50, 10); // 10 x €50 notes
 
-  @GetMapping("/all")
-  public List<Customer> getAllCustomers() {
-    final List<Customer> allAccounts = this.repository.findAll();
-    return allAccounts;
-  }
-
-  @GetMapping("/balance")
-  public String testGet() {
-    return "Hello there";
+    final List<Customer> customers = this.repository.findAll();
+    this.atm = new AutomatedTellerMachine(initialFunds, customers);
   }
 
   @PostMapping("/balance")
