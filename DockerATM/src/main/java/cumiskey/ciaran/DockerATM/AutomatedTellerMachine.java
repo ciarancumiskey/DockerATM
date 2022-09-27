@@ -49,12 +49,9 @@ public class AutomatedTellerMachine {
     this.notesAvailable = notesAvailable;
   }
 
-  public void updateNoteCount(final Integer noteValue, final Integer newNoteCount) {
-    this.notesAvailable.put(noteValue, newNoteCount);
-  }
 
   protected void addCash(Map<Integer, Integer> addedNotes) {
-    for(final Map.Entry<Integer, Integer> noteValueAndCount : notesAvailable.entrySet()) {
+    for(final Map.Entry<Integer, Integer> noteValueAndCount : addedNotes.entrySet()) {
       final Integer noteDenomination = noteValueAndCount.getKey();
       final Integer currentNoteCount = this.notesAvailable.get(noteDenomination);
       if(currentNoteCount != null) {
@@ -110,5 +107,9 @@ public class AutomatedTellerMachine {
     // e.g. a user requesting €40 when there are only €50s and less than 8 €5 notes left
     logger.log(Level.SEVERE, "This ATM doesn't have the right banknotes to process this request.");
     return new HashMap<>();
+  }
+
+  private void updateNoteCount(final Integer noteValue, final Integer newNoteCount) {
+    this.notesAvailable.put(noteValue, newNoteCount);
   }
 }

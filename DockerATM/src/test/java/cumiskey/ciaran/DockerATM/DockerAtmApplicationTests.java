@@ -61,6 +61,25 @@ public class DockerAtmApplicationTests {
 
 	}
 
+	public void testAddingCash() {
+		final TreeMap<Integer, Integer> initialNotes = new TreeMap<>();
+		initialNotes.put(5, 40);
+		initialNotes.put(10, 40);
+		initialNotes.put(20, 40);
+		initialNotes.put(50, 20);
+		final AutomatedTellerMachine testATM = new AutomatedTellerMachine(initialNotes);
+		int[] expectedATMNoteCounts = new int[]{40, 40, 40, 20};
+		assertNotesMap(testATM.getNotesAvailable(), expectedATMNoteCounts);
+		assert(testATM.getCashAvailable() == 2400);
+
+		final TreeMap<Integer, Integer> additionalHundredEuroNotes = new TreeMap<>();
+		additionalHundredEuroNotes.put(100, 10);
+		testATM.addCash(additionalHundredEuroNotes);
+		expectedATMNoteCounts = new int[]{40, 40, 40, 20, 10};
+		assertNotesMap(testATM.getNotesAvailable(), expectedATMNoteCounts);
+		assert(testATM.getCashAvailable() == 3400);
+	}
+
 	/**
 	 * Iterates through a Map of the note denominations and their respective counts to verify that the specified
 	 * amount of them remains.
