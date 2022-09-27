@@ -7,25 +7,26 @@ import javax.persistence.Id;
 @Entity
 public class Customer {
 
-  @Id @GeneratedValue
-  private Long accountNumber;
+  @Id
+  private long accountNumber;
 
-  private int pin;
+  private String pin; //needs to account for PINs starting with 0
   private int balance;
   private int overdraft;
 
   public Customer() {
-    //default constructor
-    this.pin = 0;
+    //default constructor - do not use this! This is just to keep
+    this.accountNumber = 0;
+    this.pin = "0000";
     this.balance = 0;
     this.overdraft = 0;
   }
 
-  public Customer(final Long accountNumber) {
-    this(accountNumber, 0, 0, 0);
+  public Customer(final long accountNumber) {
+    this(accountNumber, "0000", 0, 0);
   }
 
-  public Customer(final Long accountNumber, final int pin, final int openingBalance, final int overdraft){
+  public Customer(final long accountNumber, final String pin, final int openingBalance, final int overdraft){
     this.accountNumber = accountNumber;
     this.pin = pin;
     this.balance = openingBalance;
@@ -40,11 +41,11 @@ public class Customer {
     this.accountNumber = accountNumber;
   }
 
-  public int getPin() {
+  public String getPin() {
     return pin;
   }
 
-  public void setPin(int pin) {
+  public void setPin(String pin) {
     this.pin = pin;
   }
 

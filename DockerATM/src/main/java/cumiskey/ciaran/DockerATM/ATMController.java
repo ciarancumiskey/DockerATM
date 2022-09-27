@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -23,6 +24,12 @@ public class ATMController {
 
   ATMController(CustomerRepository repository) {
     this.repository = repository;
+  }
+
+  @GetMapping("/all")
+  public List<Customer> getAllCustomers() {
+    final List<Customer> allAccounts = this.repository.findAll();
+    return allAccounts;
   }
 
   @GetMapping("/balance")
@@ -40,7 +47,7 @@ public class ATMController {
     }
     final Customer requestedAccount = optionalRequestedAccount.get();
     //Verify the PIN
-    if(requestedAccount.getPin() != request.getAccountPIN()) {
+    if(!requestedAccount.getPin().equals(request.getAccountPIN())) {
       logger.error("Wrong PIN entered");
       return new BasicResponse(HttpStatus.UNAUTHORIZED.value(), "Incorrect PIN entered.");
     }

@@ -2,9 +2,9 @@ package cumiskey.ciaran.DockerATM.apiobjects;
 
 public class BalanceCheckRequest {
   private String accountNumber;
-  private int accountPIN;
+  private String accountPIN;
 
-  public BalanceCheckRequest(String accountNumber, int accountPIN) {
+  public BalanceCheckRequest(String accountNumber, String accountPIN) {
     this.accountNumber = accountNumber;
     this.accountPIN = accountPIN;
   }
@@ -17,11 +17,11 @@ public class BalanceCheckRequest {
     this.accountNumber = accountNumber;
   }
 
-  public int getAccountPIN() {
+  public String getAccountPIN() {
     return accountPIN;
   }
 
-  public void setAccountPIN(int accountPIN) {
+  public void setAccountPIN(String accountPIN) {
     this.accountPIN = accountPIN;
   }
 }

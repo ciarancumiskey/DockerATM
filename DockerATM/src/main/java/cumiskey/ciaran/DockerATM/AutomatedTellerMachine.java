@@ -41,7 +41,7 @@ public class AutomatedTellerMachine {
     this.cashAvailable = cashAvailable;
   }
 
-  public Map<Integer, Integer> getNotesAvailable() {
+  public TreeMap<Integer, Integer> getNotesAvailable() {
     return notesAvailable;
   }
 
@@ -78,7 +78,7 @@ public class AutomatedTellerMachine {
     //TODO: if a withdrawal causes the ATM to run out of a particular denomination, log it.
     //There's no point giving out €50s if the user only requested €40
     int amountLeftToWithdraw = withdrawalAmount;
-    for(final Map.Entry<Integer, Integer> noteValueAndCount : this.notesAvailable.entrySet()) {
+    for(final Map.Entry<Integer, Integer> noteValueAndCount : this.notesAvailable.descendingMap().entrySet()) {
       if (noteValueAndCount.getKey() < withdrawalAmount && noteValueAndCount.getValue() > 0) {
         final int notesAvailable = noteValueAndCount.getValue();
         final int noteValue = noteValueAndCount.getKey();
