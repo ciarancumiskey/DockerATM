@@ -11,7 +11,7 @@ public class BalanceCheckResponse extends BasicResponse {
   }
 
   public BalanceCheckResponse(int currentBalance, int maximumWithdrawal) {
-    super(200); // "OK" HTTP status
+    super(ATMStatus.SUCCESS.getStatusId()); // "OK" HTTP status
     this.currentBalance = currentBalance;
     this.maximumWithdrawal = maximumWithdrawal;
   }

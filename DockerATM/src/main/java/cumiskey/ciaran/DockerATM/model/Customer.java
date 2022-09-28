@@ -57,6 +57,15 @@ public class Customer {
     this.balance = balance;
   }
 
+  //Returns "true" for a successful withdrawal, and "false" if it fails.
+  public boolean withdraw(int withdrawalAmount) {
+    if(withdrawalAmount <= this.balance + this.overdraft) {
+      this.balance -= withdrawalAmount;
+      return true;
+    }
+    return false;
+  }
+
   public int getOverdraft() {
     return overdraft;
   }
