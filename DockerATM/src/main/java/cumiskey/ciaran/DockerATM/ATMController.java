@@ -7,12 +7,12 @@ import cumiskey.ciaran.DockerATM.model.Customer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.Optional;
+import java.util.TreeMap;
 
 @RestController
 public class ATMController {
@@ -30,8 +30,7 @@ public class ATMController {
     initialFunds.put(20, 30); // 30 x €20 notes
     initialFunds.put(50, 10); // 10 x €50 notes
 
-    final List<Customer> customers = this.repository.findAll();
-    this.atm = new AutomatedTellerMachine(initialFunds, customers);
+    this.atm = new AutomatedTellerMachine(initialFunds);
   }
 
   @PostMapping("/balance")
@@ -49,7 +48,12 @@ public class ATMController {
       return new BasicResponse(HttpStatus.UNAUTHORIZED.value(), "Incorrect PIN entered.");
     }
     final int balance = requestedAccount.getBalance();
+    final int atmFunds = this.atm.getCashAvailable();
     final int withdrawalLimit = balance + requestedAccount.getOverdraft();
-    return new BalanceCheckResponse(balance, withdrawalLimit);
+    if(withdrawalLimit < atmFunds) {
+      return new BalanceCheckResponse(balance, withdrawalLimit);
+    }
+    //If the user's balance is more than how much cash is in the ATM, they can only withdraw up to the amount inside.
+    return new BalanceCheckResponse(balance, atmFunds);
   }
 }

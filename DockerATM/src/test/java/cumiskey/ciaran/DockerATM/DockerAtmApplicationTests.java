@@ -1,10 +1,10 @@
 package cumiskey.ciaran.DockerATM;
 
-import org.apache.commons.compress.utils.Lists;
-import org.testcontainers.shaded.com.google.common.collect.Maps;
 import org.testng.annotations.Test;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Test()
 public class DockerAtmApplicationTests {
@@ -16,7 +16,7 @@ public class DockerAtmApplicationTests {
 		atmNotes.put(10, 30);
 		atmNotes.put(20, 30);
 		atmNotes.put(50, 10);
-		final AutomatedTellerMachine testATM = new AutomatedTellerMachine(1500, atmNotes, Collections.emptyList());
+		final AutomatedTellerMachine testATM = new AutomatedTellerMachine(1500, atmNotes);
 		assert(testATM.getCashAvailable() == 1500);
 
 		final Map<Integer, Integer> withdrawal300 = testATM.withdrawCash(300);
@@ -67,7 +67,7 @@ public class DockerAtmApplicationTests {
 		initialNotes.put(10, 40);
 		initialNotes.put(20, 40);
 		initialNotes.put(50, 20);
-		final AutomatedTellerMachine testATM = new AutomatedTellerMachine(initialNotes, Collections.emptyList());
+		final AutomatedTellerMachine testATM = new AutomatedTellerMachine(initialNotes);
 		int[] expectedATMNoteCounts = new int[]{40, 40, 40, 20};
 		assertNotesMap(testATM.getNotesAvailable(), expectedATMNoteCounts);
 		assert(testATM.getCashAvailable() == 2400);
