@@ -7,7 +7,7 @@ public class WithdrawalResponse extends BasicResponse {
   private int remainingBalance;
 
   public WithdrawalResponse(final Map<Integer, Integer> withdrawnNoteCounts, final int remainingBalance) {
-    super(ATMStatus.SUCCESS.getStatusId()); // "OK" HTTP status
+    super(ATMStatus.SUCCESS.getValue(), "Withdrawal successful."); // "OK" HTTP status
     this.withdrawnNoteCounts = withdrawnNoteCounts;
     this.remainingBalance = remainingBalance;
   }

@@ -7,17 +7,17 @@ public enum ATMStatus {
   INSUFFICIENT_FUNDS(-3),
   ATM_CANNOT_FULFIL_WITHDRAWAL(-4);
 
-  private int statusId;
+  private int value;
 
-  ATMStatus(int statusId) {
-    this.statusId = statusId;
+  ATMStatus(int value) {
+    this.value = value;
   }
 
-  public int getStatusId() {
-    return statusId;
+  public int getValue() {
+    return value;
   }
 
-  public void setStatusId(int statusId) {
-    this.statusId = statusId;
+  public void setValue(int value) {
+    this.value = value;
   }
 }

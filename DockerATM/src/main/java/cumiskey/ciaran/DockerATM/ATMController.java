@@ -4,7 +4,6 @@ import cumiskey.ciaran.DockerATM.apiobjects.*;
 import cumiskey.ciaran.DockerATM.model.Customer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,13 +37,13 @@ public class ATMController {
     final Optional<Customer> optionalRequestedAccount = this.repository.findById(requestedAccountNum);
     if(!optionalRequestedAccount.isPresent()) {
       logger.error("Account not found");
-      return new BasicResponse(HttpStatus.NOT_FOUND.value(), "No account found for this number.");
+      return new BasicResponse(ATMStatus.ACCOUNT_NOT_FOUND.getValue(), "No account found for this number.");
     }
     final Customer requestedAccount = optionalRequestedAccount.get();
     //Verify the PIN
     if(!requestedAccount.getPin().equals(request.getAccountPIN())) {
       logger.error("Wrong PIN entered");
-      return new BasicResponse(HttpStatus.UNAUTHORIZED.value(), "Incorrect PIN entered.");
+      return new BasicResponse(ATMStatus.INCORRECT_PIN.getValue(), "Incorrect PIN entered.");
     }
     final int balance = requestedAccount.getBalance();
     final int atmFunds = this.atm.getCashAvailable();
@@ -61,26 +60,26 @@ public class ATMController {
     final int withdrawalAmount = Integer.parseInt(request.getWithdrawalAmount());
     if(withdrawalAmount % 5 != 0) { //Since this ATM only dispenses Euro banknotes, it can only satisfy withdrawals that are a multiple of 5.
       logger.error("User tried to request a withdrawal that wasn't in multiples of €5.");
-      return new BasicResponse(ATMStatus.ATM_CANNOT_FULFIL_WITHDRAWAL.getStatusId(), "Withdrawals can only be in multiples of €5.");
+      return new BasicResponse(ATMStatus.ATM_CANNOT_FULFIL_WITHDRAWAL.getValue(), "Withdrawals can only be in multiples of €5.");
     }
     final Long requestedAccountNum = Long.parseLong(request.getAccountNumber());
     final Optional<Customer> optionalRequestedAccount = this.repository.findById(requestedAccountNum);
     if(!optionalRequestedAccount.isPresent()) {
       logger.error("Account not found");
-      return new BasicResponse(ATMStatus.ACCOUNT_NOT_FOUND.getStatusId(), "No account found for this number.");
+      return new BasicResponse(ATMStatus.ACCOUNT_NOT_FOUND.getValue(), "No account found for this number.");
     }
     final Customer requestedAccount = optionalRequestedAccount.get();
     //Verify the PIN
     if(!requestedAccount.getPin().equals(request.getAccountPIN())) {
       logger.error("Wrong PIN entered");
-      return new BasicResponse(ATMStatus.INCORRECT_PIN.getStatusId(), "Incorrect PIN entered.");
+      return new BasicResponse(ATMStatus.INCORRECT_PIN.getValue(), "Incorrect PIN entered.");
     }
     if(requestedAccount.withdraw(withdrawalAmount)) { //will be true if the withdrawal was successful
       if (withdrawalAmount <= this.atm.getCashAvailable()) {
         final Map<Integer, Integer> withdrawnNotes = this.atm.withdrawCash(withdrawalAmount);
         if (withdrawnNotes.isEmpty()) {
           logger.error("Unable to fulfil withdrawal due to insufficient amounts of the right banknotes available to fulfil this request.");
-          return new BasicResponse(ATMStatus.ATM_CANNOT_FULFIL_WITHDRAWAL.getStatusId(), "Unable to process withdrawal, as the right notes were unavailable.");
+          return new BasicResponse(ATMStatus.ATM_CANNOT_FULFIL_WITHDRAWAL.getValue(), "Unable to process withdrawal, as the right notes were unavailable.");
         }
         logger.info("€" + this.atm.getCashAvailable() + " left in the ATM");
         //Save the update to the account balance
@@ -89,11 +88,11 @@ public class ATMController {
         return new WithdrawalResponse(withdrawnNotes, customerBalance);
       } else {
         logger.error("Unable to fulfil withdrawal of €" + withdrawalAmount + ", only " + this.atm.getCashAvailable() + " left in the machine.");
-        return new BasicResponse(ATMStatus.ATM_CANNOT_FULFIL_WITHDRAWAL.getStatusId(),
+        return new BasicResponse(ATMStatus.ATM_CANNOT_FULFIL_WITHDRAWAL.getValue(),
             "Insufficient funds in ATM to process withdrawal.");
       }
     } else {
-      return new BasicResponse(ATMStatus.INSUFFICIENT_FUNDS.getStatusId(), "Insufficient funds for withdrawal.");
+      return new BasicResponse(ATMStatus.INSUFFICIENT_FUNDS.getValue(), "Insufficient funds for withdrawal.");
     }
   }
 }
