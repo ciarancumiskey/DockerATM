@@ -2,33 +2,35 @@ package cumiskey.ciaran.DockerATM.apiobjects;
 
 import org.springframework.http.HttpStatus;
 
+import java.math.BigDecimal;
+
 public class BalanceCheckResponse extends BasicResponse {
-  private int currentBalance;
-  private int maximumWithdrawal;
+  private BigDecimal currentBalance;
+  private BigDecimal maximumWithdrawal;
 
   public BalanceCheckResponse(HttpStatus status) {
     super(status.value());
   }
 
-  public BalanceCheckResponse(int currentBalance, int maximumWithdrawal) {
+  public BalanceCheckResponse(BigDecimal currentBalance, BigDecimal maximumWithdrawal) {
     super(ATMStatus.SUCCESS.getValue(), "Balance checked successfully."); // "OK" HTTP status
     this.currentBalance = currentBalance;
     this.maximumWithdrawal = maximumWithdrawal;
   }
 
-  public int getCurrentBalance() {
+  public BigDecimal getCurrentBalance() {
     return currentBalance;
   }
 
-  public void setCurrentBalance(int currentBalance) {
+  public void setCurrentBalance(BigDecimal currentBalance) {
     this.currentBalance = currentBalance;
   }
 
-  public int getMaximumWithdrawal() {
+  public BigDecimal getMaximumWithdrawal() {
     return maximumWithdrawal;
   }
 
-  public void setMaximumWithdrawal(int maximumWithdrawal) {
+  public void setMaximumWithdrawal(BigDecimal maximumWithdrawal) {
     this.maximumWithdrawal = maximumWithdrawal;
   }
 }

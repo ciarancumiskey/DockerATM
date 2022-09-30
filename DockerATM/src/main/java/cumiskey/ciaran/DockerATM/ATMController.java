@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -33,7 +35,7 @@ public class ATMController {
 
   @PostMapping("/balance")
   public BasicResponse getBalance(@RequestBody BalanceCheckRequest request) {
-    final Long requestedAccountNum = Long.parseLong(request.getAccountNumber());
+    final String requestedAccountNum = request.getAccountNumber();
     final Optional<Customer> optionalRequestedAccount = this.repository.findById(requestedAccountNum);
     if(!optionalRequestedAccount.isPresent()) {
       logger.error("Account not found");
@@ -45,14 +47,14 @@ public class ATMController {
       logger.error("Wrong PIN entered");
       return new BasicResponse(ATMStatus.INCORRECT_PIN.getValue(), "Incorrect PIN entered.");
     }
-    final int balance = requestedAccount.getBalance();
+    final BigDecimal balance = requestedAccount.getBalance();
     final int atmFunds = this.atm.getCashAvailable();
-    final int withdrawalLimit = balance + requestedAccount.getOverdraft();
+    final double withdrawalLimit = requestedAccount.getWithdrawalLimit();
     if(withdrawalLimit < atmFunds) {
-      return new BalanceCheckResponse(balance, withdrawalLimit);
+      return new BalanceCheckResponse(balance, BigDecimal.valueOf(withdrawalLimit).setScale(2, RoundingMode.CEILING));
     }
     //If the user's balance is more than how much cash is in the ATM, they can only withdraw up to the amount inside.
-    return new BalanceCheckResponse(balance, atmFunds);
+    return new BalanceCheckResponse(balance, BigDecimal.valueOf(atmFunds));
   }
 
   @PostMapping("/withdraw")
@@ -62,7 +64,7 @@ public class ATMController {
       logger.error("User tried to request a withdrawal that wasn't in multiples of €5.");
       return new BasicResponse(ATMStatus.ATM_CANNOT_FULFIL_WITHDRAWAL.getValue(), "Withdrawals can only be in multiples of €5.");
     }
-    final Long requestedAccountNum = Long.parseLong(request.getAccountNumber());
+    final String requestedAccountNum = request.getAccountNumber();
     final Optional<Customer> optionalRequestedAccount = this.repository.findById(requestedAccountNum);
     if(!optionalRequestedAccount.isPresent()) {
       logger.error("Account not found");
@@ -84,7 +86,7 @@ public class ATMController {
         logger.info("€" + this.atm.getCashAvailable() + " left in the ATM");
         //Save the update to the account balance
         this.repository.save(requestedAccount);
-        final int customerBalance = requestedAccount.getBalance();
+        final BigDecimal customerBalance = requestedAccount.getBalance().setScale(2, RoundingMode.CEILING);
         return new WithdrawalResponse(withdrawnNotes, customerBalance);
       } else {
         logger.error("Unable to fulfil withdrawal of €" + withdrawalAmount + ", only " + this.atm.getCashAvailable() + " left in the machine.");

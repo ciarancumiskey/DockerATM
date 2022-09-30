@@ -1,12 +1,13 @@
 package cumiskey.ciaran.DockerATM.apiobjects;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 public class WithdrawalResponse extends BasicResponse {
   private Map<Integer, Integer> withdrawnNoteCounts; //the key is the note denomination, the value is how many of them were withdrawn
-  private int remainingBalance;
+  private BigDecimal remainingBalance;
 
-  public WithdrawalResponse(final Map<Integer, Integer> withdrawnNoteCounts, final int remainingBalance) {
+  public WithdrawalResponse(final Map<Integer, Integer> withdrawnNoteCounts, final BigDecimal remainingBalance) {
     super(ATMStatus.SUCCESS.getValue(), "Withdrawal successful."); // "OK" HTTP status
     this.withdrawnNoteCounts = withdrawnNoteCounts;
     this.remainingBalance = remainingBalance;
@@ -21,11 +22,11 @@ public class WithdrawalResponse extends BasicResponse {
     this.withdrawnNoteCounts = withdrawnNoteCounts;
   }
 
-  public int getRemainingBalance() {
+  public BigDecimal getRemainingBalance() {
     return remainingBalance;
   }
 
-  public void setRemainingBalance(int remainingBalance) {
+  public void setRemainingBalance(BigDecimal remainingBalance) {
     this.remainingBalance = remainingBalance;
   }
 }

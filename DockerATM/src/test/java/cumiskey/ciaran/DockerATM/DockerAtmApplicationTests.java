@@ -3,6 +3,7 @@ package cumiskey.ciaran.DockerATM;
 import cumiskey.ciaran.DockerATM.model.Customer;
 import org.testng.annotations.Test;
 
+import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -82,14 +83,15 @@ public class DockerAtmApplicationTests {
 	}
 
 	public void testCustomerWithdrawals() {
-		final Customer customer = new Customer(1234, "0000", 500, 100);
-		assert(customer.getBalance() == 500);
-		assert(customer.withdraw(400));
-		assert(customer.getBalance() == 100);
-		assert(customer.withdraw(150));
-		assert(customer.getBalance() == -50);
-		assert(!customer.withdraw(100)); //this should exceed the overdraft, and thus return "false"
-		assert(customer.getBalance() == -50); //the balance should be unchanged, as the withdrawal was refused
+		final Customer customer = new Customer("1234", "0000", BigDecimal.valueOf(500.00), BigDecimal.valueOf(100));
+		assert(customer.getAccountNumber().equals("1234"));
+		assert(customer.getBalance().equals(BigDecimal.valueOf(500.00)));
+		assert(customer.withdraw(BigDecimal.valueOf(400)));
+		assert(customer.getBalance().equals(BigDecimal.valueOf(100.00)));
+		assert(customer.withdraw(BigDecimal.valueOf(150)));
+		assert(customer.getBalance().equals(BigDecimal.valueOf(-50.00)));
+		assert(!customer.withdraw(BigDecimal.valueOf(100))); //this should exceed the overdraft, and thus return "false"
+		assert(customer.getBalance().equals(BigDecimal.valueOf(-50.00))); //the balance should be unchanged, as the withdrawal was refused
 	}
 
 	/**

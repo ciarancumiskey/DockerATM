@@ -7,6 +7,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.math.BigDecimal;
+
 @Configuration
 public class DatabaseInitialiser {
 
@@ -16,8 +18,8 @@ public class DatabaseInitialiser {
   CommandLineRunner initialiseDatabase(CustomerRepository repo) {
     return args -> {
       //Preload the customers into the database
-      repo.save(new Customer(123456789L, "1234", 800, 200));
-      repo.save(new Customer(987654321L, "4321", 1230, 150));
+      repo.save(new Customer("123456789", "1234", BigDecimal.valueOf(800), BigDecimal.valueOf(200)));
+      repo.save(new Customer("987654321", "4321", BigDecimal.valueOf(1230), BigDecimal.valueOf(150)));
     };
   }
 }

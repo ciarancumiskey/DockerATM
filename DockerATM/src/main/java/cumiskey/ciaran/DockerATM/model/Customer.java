@@ -1,43 +1,45 @@
 package cumiskey.ciaran.DockerATM.model;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Entity
 public class Customer {
 
   @Id
-  private long accountNumber;
+  private String accountNumber; //needs to account for account numbers starting with 0
 
   private String pin; //needs to account for PINs starting with 0
-  private int balance;
-  private int overdraft;
+  private BigDecimal balance;
+  private BigDecimal overdraft;
 
   public Customer() {
     //default constructor - do not use this! This is just to keep
-    this.accountNumber = 0;
+    this.accountNumber = "000000000";
     this.pin = "0000";
-    this.balance = 0;
-    this.overdraft = 0;
+    this.balance = BigDecimal.ZERO;
+    this.overdraft = BigDecimal.ZERO;
   }
 
-  public Customer(final long accountNumber) {
-    this(accountNumber, "0000", 0, 0);
+  public Customer(final String accountNumber) {
+    this(accountNumber, "0000", BigDecimal.ZERO, BigDecimal.ZERO);
   }
 
-  public Customer(final long accountNumber, final String pin, final int openingBalance, final int overdraft){
+  public Customer(final String accountNumber, final String pin, final BigDecimal openingBalance,
+                  final BigDecimal overdraft){
     this.accountNumber = accountNumber;
     this.pin = pin;
     this.balance = openingBalance;
     this.overdraft = overdraft;
   }
 
-  public Long getAccountNumber() {
+  public String getAccountNumber() {
     return accountNumber;
   }
 
-  public void setAccountNumber(Long accountNumber) {
+  public void setAccountNumber(String accountNumber) {
     this.accountNumber = accountNumber;
   }
 
@@ -49,29 +51,12 @@ public class Customer {
     this.pin = pin;
   }
 
-  public int getBalance() {
+  public BigDecimal getBalance() {
     return balance;
   }
 
   public void setBalance(int balance) {
-    this.balance = balance;
-  }
-
-  //Returns "true" for a successful withdrawal, and "false" if it fails.
-  public boolean withdraw(int withdrawalAmount) {
-    if(withdrawalAmount <= this.balance + this.overdraft) {
-      this.balance -= withdrawalAmount;
-      return true;
-    }
-    return false;
-  }
-
-  public int getOverdraft() {
-    return overdraft;
-  }
-
-  public void setOverdraft(int overdraft) {
-    this.overdraft = overdraft;
+    this.balance = BigDecimal.valueOf(balance);
   }
 
   /**
@@ -79,22 +64,45 @@ public class Customer {
    * @param withdrawalAmount - the amount that the user wants to withdraw
    * @return true if the withdrawal was successful, false if not
    */
-  protected boolean withdrawFunds(int withdrawalAmount) {
-    final int negativeBalanceLimit = 0 - this.overdraft;
-    if(this.balance - withdrawalAmount > negativeBalanceLimit) {
-      final int newBalance = this.balance - withdrawalAmount;
+  public boolean withdraw(final BigDecimal withdrawalAmount) {
+    double balanceValue = this.balance.doubleValue();
+    final double overdraftValue = this.overdraft.doubleValue();
+    final double negativeBalanceLimit = 0.0 - overdraftValue;
+    double withdrawalValue = withdrawalAmount.doubleValue();
+    if(balanceValue - withdrawalValue > negativeBalanceLimit) {
+      final double newBalance = balanceValue - withdrawalValue;
       if(newBalance < 0) {
-        //Subtract the original balance from the withdrawal amount,
-        //as that's the amount that will be needed from the overdraft.
-        withdrawalAmount -= this.balance;
-        if(withdrawalAmount < this.overdraft) {
-          this.overdraft -= withdrawalAmount;
+        //Check if the withdrawal exceeds the overdraft
+        if(0 - newBalance < overdraftValue) {
+          this.balance = BigDecimal.valueOf(newBalance);
         } else {
           return false;
         }
       }
-      setBalance(newBalance);
     }
-    return true;
+    if(withdrawalValue <= balanceValue + overdraftValue) {
+      balanceValue -= withdrawalValue;
+      this.balance = BigDecimal.valueOf(balanceValue);
+      return true;
+    }
+    return false;
+  }
+
+  public boolean withdraw(final double withdrawalAmount) {
+    return withdraw(BigDecimal.valueOf(withdrawalAmount).setScale(2, RoundingMode.CEILING));
+  }
+
+  public BigDecimal getOverdraft() {
+    return overdraft;
+  }
+
+  public double getWithdrawalLimit() {
+    double withdrawalLimit = this.balance.doubleValue();
+    withdrawalLimit += this.overdraft.doubleValue();
+    return withdrawalLimit;
+  }
+
+  public void setOverdraft(BigDecimal overdraft) {
+    this.overdraft = overdraft;
   }
 }
