@@ -19,3 +19,11 @@ Optional:
 2. Open it in IntelliJ.
 3. Navigate to your Postgres installation's /data/ folder and run the command: ```createdb docker_atm```.
 4. Right-click **DockerAtmApplication**, and select either **Run** or **Debug**.
+
+## Example requests
+
+### Check balance
+```curl -X POST -H 'Content-Type: application/json' localhost:8081/balance -d '{\"accountNumber\":\"<ACCOUNT_NUMBER>\", \"accountPIN\": \"<PIN>\"}'```
+
+### Withdraw money
+```curl -X POST -H 'Content-Type: application/json' localhost:8081/withdraw -d '{\"withdrawalAmount\":\"<WITHDRAWAL_AMOUNT>\", \"accountNumber\":\"<ACCOUNT_NUMBER>\", \"accountPIN\": \"<PIN>\"}'```
