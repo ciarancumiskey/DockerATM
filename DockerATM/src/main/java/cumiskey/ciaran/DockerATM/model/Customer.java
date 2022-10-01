@@ -1,5 +1,6 @@
 package cumiskey.ciaran.DockerATM.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.math.BigDecimal;
@@ -9,14 +10,20 @@ import java.math.RoundingMode;
 public class Customer {
 
   @Id
+  @Column(name = "account_number")
   private String accountNumber; //needs to account for account numbers starting with 0
 
+  @Column(name = "pin")
   private String pin; //needs to account for PINs starting with 0
+
+  @Column(name = "balance")
   private BigDecimal balance;
+
+  @Column(name = "overdraft")
   private BigDecimal overdraft;
 
   public Customer() {
-    //default constructor - do not use this! This is just to keep
+    //default constructor - do not use this! This is just to satisfy the requirement for a default no-args constructor.
     this.accountNumber = "000000000";
     this.pin = "0000";
     this.balance = BigDecimal.ZERO;
