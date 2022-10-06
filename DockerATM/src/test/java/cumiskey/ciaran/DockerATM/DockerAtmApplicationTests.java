@@ -1,5 +1,6 @@
 package cumiskey.ciaran.DockerATM;
 
+import cumiskey.ciaran.DockerATM.apiobjects.ATMStatusResponse;
 import cumiskey.ciaran.DockerATM.model.Customer;
 import org.testng.annotations.Test;
 
@@ -92,6 +93,21 @@ public class DockerAtmApplicationTests {
 		assert(customer.getBalance().equals(BigDecimal.valueOf(-50.00)));
 		assert(!customer.withdraw(BigDecimal.valueOf(100))); //this should exceed the overdraft, and thus return "false"
 		assert(customer.getBalance().equals(BigDecimal.valueOf(-50.00))); //the balance should be unchanged, as the withdrawal was refused
+	}
+
+	public void testATMStatus() {
+		final TreeMap<Integer, Integer> atmInitialFunds = new TreeMap<>();
+		atmInitialFunds.put(Integer.valueOf(10), Integer.valueOf(100));
+		atmInitialFunds.put(Integer.valueOf(20), Integer.valueOf(50));
+		atmInitialFunds.put(Integer.valueOf(50), Integer.valueOf(20));
+		final AutomatedTellerMachine atm = new AutomatedTellerMachine(atmInitialFunds);
+		assert(atm.getCashAvailable() == 3000);
+		final int[] expectedNoteCounts = new int[]{100, 50, 20};
+		assertNotesMap(atm.getNotesAvailable(), expectedNoteCounts);
+
+		final ATMStatusResponse atmStatusResponse = new ATMStatusResponse(atm);
+		assert(atmStatusResponse.getFundsAvailable() == 3000);
+		assertNotesMap(atmStatusResponse.getNoteDenominationsAvailable(), expectedNoteCounts);
 	}
 
 	/**

@@ -5,6 +5,7 @@ import cumiskey.ciaran.DockerATM.model.Customer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,6 +35,12 @@ public class ATMController {
     initialFunds.put(50, 10); // 10 x €50 notes
 
     this.atm = new AutomatedTellerMachine(initialFunds);
+  }
+
+  //Shows the amount of cash and how many of each note are available.
+  @GetMapping("/status")
+  public BasicResponse getATMStatus() {
+    return new ATMStatusResponse(this.atm);
   }
 
   @PostMapping("/balance")
