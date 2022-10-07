@@ -6,10 +6,11 @@ services:
     ports:
       - "8081:8081"
 
-  postgres:
+  some-postgres:
     container_name: postgres
     image: postgres
     environment:
+      POSTGRES_DB: docker_atm
       POSTGRES_USER: ciara
       POSTGRES_PASSWORD: changeMe!
       PGDATA: /data/postgres
@@ -30,7 +31,6 @@ services:
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     volumes:
       - pgadmin:/var/lib/pgadmin
-
     ports:
       - "5050:80"
     networks:

@@ -3,8 +3,10 @@ package cumiskey.ciaran.DockerATM.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 @Entity
 public class Customer {
@@ -21,6 +23,9 @@ public class Customer {
 
   @Column(name = "overdraft")
   private BigDecimal overdraft;
+
+  @OneToMany(mappedBy = "customer")
+  private List<Transaction> transactions;
 
   public Customer() {
     //default constructor - do not use this! This is just to satisfy the requirement for a default no-args constructor.
@@ -60,6 +65,10 @@ public class Customer {
 
   public BigDecimal getBalance() {
     return balance;
+  }
+
+  public void setBalance(BigDecimal balance) {
+    this.balance = balance;
   }
 
   public void setBalance(int balance) {
@@ -111,5 +120,14 @@ public class Customer {
 
   public void setOverdraft(BigDecimal overdraft) {
     this.overdraft = overdraft;
+  }
+
+
+  public List<Transaction> getTransactions() {
+    return transactions;
+  }
+
+  public void setTransactions(List<Transaction> transactions) {
+    this.transactions = transactions;
   }
 }

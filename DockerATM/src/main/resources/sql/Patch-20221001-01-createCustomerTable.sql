@@ -1,4 +1,4 @@
-create table Customer(account_number varchar(10) NOT NULL,
+create table customer(account_number varchar(10) NOT NULL,
     pin varchar(10),
     balance numeric(20, 2),
     overdraft numeric(20, 2),

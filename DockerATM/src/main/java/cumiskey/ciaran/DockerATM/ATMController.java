@@ -2,6 +2,7 @@ package cumiskey.ciaran.DockerATM;
 
 import cumiskey.ciaran.DockerATM.apiobjects.*;
 import cumiskey.ciaran.DockerATM.model.Customer;
+import cumiskey.ciaran.DockerATM.model.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -20,14 +22,17 @@ import java.util.TreeMap;
 public class ATMController {
 
   @Autowired
-  private final CustomerRepository repository;
+  private final CustomerRepository customerRepository;
+
+  @Autowired
+  private TransactionRepository transactionRepository;
 
   private final AutomatedTellerMachine atm;
 
   private final Logger logger = LoggerFactory.getLogger(ATMController.class);
 
-  ATMController(CustomerRepository repository) {
-    this.repository = repository;
+  ATMController(CustomerRepository customerRepository) {
+    this.customerRepository = customerRepository;
     final TreeMap<Integer, Integer> initialFunds = new TreeMap<>();
     initialFunds.put(5, 20); // 20 x €5 notes
     initialFunds.put(10, 30); // 30 x €10 notes
@@ -46,7 +51,7 @@ public class ATMController {
   @PostMapping("/balance")
   public BasicResponse getBalance(@RequestBody BalanceCheckRequest request) {
     final String requestedAccountNum = request.getAccountNumber();
-    final Optional<Customer> optionalRequestedAccount = this.repository.findById(requestedAccountNum);
+    final Optional<Customer> optionalRequestedAccount = this.customerRepository.findById(requestedAccountNum);
     if(!optionalRequestedAccount.isPresent()) {
       logger.error("Account not found");
       return new BasicResponse(ATMStatus.ACCOUNT_NOT_FOUND.getValue(), "No account found for this number.");
@@ -75,7 +80,7 @@ public class ATMController {
       return new BasicResponse(ATMStatus.ATM_CANNOT_FULFIL_WITHDRAWAL.getValue(), "Withdrawals can only be in multiples of €5.");
     }
     final String requestedAccountNum = request.getAccountNumber();
-    final Optional<Customer> optionalRequestedAccount = this.repository.findById(requestedAccountNum);
+    final Optional<Customer> optionalRequestedAccount = this.customerRepository.findById(requestedAccountNum);
     if(!optionalRequestedAccount.isPresent()) {
       logger.error("Account not found");
       return new BasicResponse(ATMStatus.ACCOUNT_NOT_FOUND.getValue(), "No account found for this number.");
@@ -95,8 +100,13 @@ public class ATMController {
         }
         logger.info("€" + this.atm.getCashAvailable() + " left in the ATM");
         //Save the update to the account balance
-        this.repository.save(requestedAccount);
+        this.customerRepository.save(requestedAccount);
         final BigDecimal customerBalance = requestedAccount.getBalance().setScale(2, RoundingMode.CEILING);
+
+        final Transaction transaction = new Transaction(requestedAccount, BigDecimal.valueOf(withdrawalAmount),
+            "ATM Withdrawal");
+        this.transactionRepository.save(transaction);
+
         return new WithdrawalResponse(withdrawnNotes, customerBalance);
       } else {
         logger.error("Unable to fulfil withdrawal of €" + withdrawalAmount + ", only " + this.atm.getCashAvailable() + " left in the machine.");
@@ -106,5 +116,24 @@ public class ATMController {
     } else {
       return new BasicResponse(ATMStatus.INSUFFICIENT_FUNDS.getValue(), "Insufficient funds for withdrawal.");
     }
+  }
+
+  @PostMapping("/transactions")
+  public BasicResponse showTransactions(@RequestBody BalanceCheckRequest request) {
+    final String requestedAccountNum = request.getAccountNumber();
+    final Optional<Customer> optionalRequestedAccount = this.customerRepository.findById(requestedAccountNum);
+    if(!optionalRequestedAccount.isPresent()) {
+      logger.error("Account not found");
+      return new BasicResponse(ATMStatus.ACCOUNT_NOT_FOUND.getValue(), "No account found for this number.");
+    }
+    final Customer requestedAccount = optionalRequestedAccount.get();
+    //Verify the PIN
+    if(!requestedAccount.getPin().equals(request.getAccountPIN())) {
+      logger.error("Wrong PIN entered");
+      return new BasicResponse(ATMStatus.INCORRECT_PIN.getValue(), "Incorrect PIN entered.");
+    }
+    final List<Transaction> transactions =
+        this.transactionRepository.getTransactionsForCustomer(requestedAccountNum);
+    return new ShowTransactionsResponse(transactions);
   }
 }
