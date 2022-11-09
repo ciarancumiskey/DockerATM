@@ -1,23 +1,28 @@
+version: "3.9"
 services:
   webapp:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8081:8081"
+      - "8071:8081"
+    networks:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/docker_atm
 
   some-postgres:
     container_name: postgres
     image: postgres
     environment:
-      POSTGRES_DB: docker_atm
       POSTGRES_USER: ciara
       POSTGRES_PASSWORD: changeMe!
+      POSTGRES_DATABASE: docker_atm
       PGDATA: /data/postgres
     volumes:
       - postgres:/data/postgres
     ports:
-      - "5432:5432" #maps the host's port 5432 to the container's port 5432
+      - "5433:5432" #maps the host's port 5433 to the container's port 5432
     networks:
       - postgres
     restart: unless-stopped
