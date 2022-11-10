@@ -1,3 +1,6 @@
+create database docker_atm;
+\c docker_atm;
+
 create table customer(account_number varchar(10) NOT NULL,
     pin varchar(10),
     balance numeric(20, 2),

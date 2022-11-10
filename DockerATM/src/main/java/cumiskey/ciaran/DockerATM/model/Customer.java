@@ -108,6 +108,10 @@ public class Customer {
     return withdraw(BigDecimal.valueOf(withdrawalAmount).setScale(2, RoundingMode.CEILING));
   }
 
+  public void deposit(final BigDecimal depositAmount) {
+    this.balance = this.balance.add(depositAmount);
+  }
+
   public BigDecimal getOverdraft() {
     return overdraft;
   }

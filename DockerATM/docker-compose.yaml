@@ -10,6 +10,8 @@ services:
       - postgres
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/docker_atm
+    depends_on:
+      - some-postgres
 
   some-postgres:
     container_name: postgres
@@ -20,12 +22,12 @@ services:
       POSTGRES_DATABASE: docker_atm
       PGDATA: /data/postgres
     volumes:
-      - postgres:/data/postgres
+      - ./db-data:/data/postgres
     ports:
       - "5433:5432" #maps the host's port 5433 to the container's port 5432
     networks:
       - postgres
-    restart: unless-stopped
+    restart: always
 
   pgadmin: #access this on localhost:5050
     container_name: pgadmin_container

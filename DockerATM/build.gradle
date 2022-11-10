@@ -28,6 +28,7 @@ dependencies {
 	testImplementation 'org.testcontainers:junit-jupiter'
 	// https://mvnrepository.com/artifact/org.testng/testng
 	testImplementation group: 'org.testng', name: 'testng', version: '6.14.3'
+    testImplementation 'org.projectlombok:lombok:1.18.22'
 }
 
 dependencyManagement {

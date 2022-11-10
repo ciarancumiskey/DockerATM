@@ -16,11 +16,15 @@ Optional:
 * Postman (to save on writing out CURL requests)
 
 0. Clone this Github repo.
-1. Navigate to your Postgres installation's /data/ folder and run the command: ```createdb docker_atm```.
-2. Copy the contents of `Patch-20221001-01-createCustomerTable.sql`
-3. 
-4. Navigate to the root folder of this project, and run: 
+1. Navigate to the root folder of this project, and run:
    ```./gradlew build; java -jar build/libs/gs-spring-boot-docker-0.1.0.jar```
+2. Run ```docker build -t docker_atm:latest .``` to create the Docker image.
+3. Run ```docker-compose up```, which will start a Postgres container along with one for DockerATM.
+4. Access the Postgres container using ```docker exec -it postgres bash```.
+5. Log into Postgres using ``PGPASSWORD=changeMe! psql -U ciara``.
+6. Copy the contents of `Patch-20221001-01-createCustomerTable.sql` to create a database for DockerATM with a 
+`customer` table.
+7. Copy the contents of `Patch-20221007-01-createTransactionTable.sql` to create a `transaction` table.
 
 
 ## Example requests
