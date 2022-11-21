@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class DockerAtmApplicationTests {
 
@@ -21,50 +23,55 @@ public class DockerAtmApplicationTests {
 		atmNotes.put(20, 30);
 		atmNotes.put(50, 10);
 		final AutomatedTellerMachine testATM = new AutomatedTellerMachine(1500, atmNotes);
-		assert(testATM.getCashAvailable() == 1500);
+		assertEquals(1500, testATM.getCashAvailable());
 
 		final Map<Integer, Integer> withdrawal300 = testATM.withdrawCash(300);
-		assert(testATM.getCashAvailable() == 1200);
+		assertEquals(1200, testATM.getCashAvailable());
 		int[] expectedATMNoteCounts = {20, 30, 30, 4};
 		assertNotesMap(testATM.getNotesAvailable(), expectedATMNoteCounts);
-		int[] expectedWithdrawnNoteCounts = {0, 0, 0, 6};
-		assertNotesMap(withdrawal300, expectedWithdrawnNoteCounts);
+		//The Map of the note denominations with the amount of each note should only have one entry, for €50 notes
+		assertNull(withdrawal300.get(5));
+		assertNull(withdrawal300.get(10));
+		assertNull(withdrawal300.get(20));
+		assertEquals(6, withdrawal300.get(50));
 
 		//This should result in the ATM running out of €50 notes, and needing to make up the difference with 2 €20s and a €10
 		final Map<Integer, Integer> withdrawal250 = testATM.withdrawCash(250);
-		assert(testATM.getCashAvailable() == 950);
-		expectedATMNoteCounts = new int[]{20, 29, 28, 0};
-		assertNotesMap(testATM.getNotesAvailable(), expectedATMNoteCounts);
-		expectedWithdrawnNoteCounts = new int[]{0, 1, 2, 4};
-		assertNotesMap(withdrawal250, expectedWithdrawnNoteCounts);
+		assertEquals(950, testATM.getCashAvailable());
+		assertNull(withdrawal250.get(5));
+		assertEquals(1, withdrawal250.get(10));
+		assertEquals(2, withdrawal250.get(20));
+		assertEquals(4, withdrawal250.get(50));
 
 		//This should result in the ATM running out of €20 notes, and needing to make up the difference with €10s
 		final Map<Integer, Integer> withdrawal600 = testATM.withdrawCash(600);
-		assert(testATM.getCashAvailable() == 350);
-		expectedATMNoteCounts = new int[]{20, 25, 0, 0};
-		assertNotesMap(testATM.getNotesAvailable(), expectedATMNoteCounts);
-		expectedWithdrawnNoteCounts = new int[]{0, 4, 28, 0};
-		assertNotesMap(withdrawal600, expectedWithdrawnNoteCounts);
+		assertEquals(350, testATM.getCashAvailable());
+		assertNull(withdrawal600.get(5));
+		assertEquals(4, withdrawal600.get(10));
+		assertEquals(28, withdrawal600.get(20));
+		assertNull(withdrawal600.get(50));
 
 		//This should result in the ATM running out of €10 notes, and needing to make up the difference with €5s
 		final Map<Integer, Integer> withdrawal260 = testATM.withdrawCash(260);
-		assert(testATM.getCashAvailable() == 90);
-		expectedATMNoteCounts = new int[]{18, 0, 0, 0};
-		assertNotesMap(testATM.getNotesAvailable(), expectedATMNoteCounts);
-		expectedWithdrawnNoteCounts = new int[]{2, 25, 0, 0};
-		assertNotesMap(withdrawal260, expectedWithdrawnNoteCounts);
+		assertEquals(90, testATM.getCashAvailable());
+		assertEquals(2, withdrawal260.get(5));
+		assertEquals(25, withdrawal260.get(10));
+		assertNull(withdrawal260.get(20));
+		assertNull(withdrawal260.get(50));
 
 		//The ATM should reject this withdrawal as it doesn't have enough cash to process it.
 		final Map<Integer, Integer> withdrawal100 = testATM.withdrawCash(100);
 		//The ATM will still have €90 in it, because the withdrawal wasn't processed.
-		assert(testATM.getCashAvailable() == 90);
+		assertEquals(90, testATM.getCashAvailable());
 		expectedATMNoteCounts = new int[]{18, 0, 0, 0};
 		assertNotesMap(testATM.getNotesAvailable(), expectedATMNoteCounts);
-		expectedWithdrawnNoteCounts = new int[]{};
-		assertNotesMap(withdrawal100, expectedWithdrawnNoteCounts);
-
+		assertNull(withdrawal100.get(5));
+		assertNull(withdrawal100.get(10));
+		assertNull(withdrawal100.get(20));
+		assertNull(withdrawal100.get(50));
 	}
 
+	@Test
 	public void testAddingCash() {
 		final TreeMap<Integer, Integer> initialNotes = new TreeMap<>();
 		initialNotes.put(5, 40);
@@ -74,40 +81,42 @@ public class DockerAtmApplicationTests {
 		final AutomatedTellerMachine testATM = new AutomatedTellerMachine(initialNotes);
 		int[] expectedATMNoteCounts = new int[]{40, 40, 40, 20};
 		assertNotesMap(testATM.getNotesAvailable(), expectedATMNoteCounts);
-		assert(testATM.getCashAvailable() == 2400);
+		assertEquals(2400, testATM.getCashAvailable());
 
 		final TreeMap<Integer, Integer> additionalHundredEuroNotes = new TreeMap<>();
 		additionalHundredEuroNotes.put(100, 10);
 		testATM.addCash(additionalHundredEuroNotes);
 		expectedATMNoteCounts = new int[]{40, 40, 40, 20, 10};
 		assertNotesMap(testATM.getNotesAvailable(), expectedATMNoteCounts);
-		assert(testATM.getCashAvailable() == 3400);
+		assertEquals(3400, testATM.getCashAvailable());
 	}
 
+	@Test
 	public void testCustomerWithdrawals() {
 		final Customer customer = new Customer("1234", "0000", BigDecimal.valueOf(500.00), BigDecimal.valueOf(100));
-		assert(customer.getAccountNumber().equals("1234"));
-		assert(customer.getBalance().equals(BigDecimal.valueOf(500.00)));
-		assert(customer.withdraw(BigDecimal.valueOf(400)));
-		assert(customer.getBalance().equals(BigDecimal.valueOf(100.00)));
-		assert(customer.withdraw(BigDecimal.valueOf(150)));
-		assert(customer.getBalance().equals(BigDecimal.valueOf(-50.00)));
-		assert(!customer.withdraw(BigDecimal.valueOf(100))); //this should exceed the overdraft, and thus return "false"
-		assert(customer.getBalance().equals(BigDecimal.valueOf(-50.00))); //the balance should be unchanged, as the withdrawal was refused
+		assertEquals("1234", customer.getAccountNumber());
+		assertEquals(BigDecimal.valueOf(500.00), customer.getBalance());
+		assertTrue(customer.withdraw(BigDecimal.valueOf(400)));
+		assertEquals(BigDecimal.valueOf(100.00), customer.getBalance());
+		assertTrue(customer.withdraw(BigDecimal.valueOf(150)));
+		assertEquals(BigDecimal.valueOf(-50.00), customer.getBalance());
+		assertFalse(customer.withdraw(BigDecimal.valueOf(100))); //this should exceed the overdraft, and thus return "false"
+		assertEquals(BigDecimal.valueOf(-50.00), customer.getBalance()); //the balance should be unchanged, as the withdrawal was refused
 	}
 
+	@Test
 	public void testATMStatus() {
 		final TreeMap<Integer, Integer> atmInitialFunds = new TreeMap<>();
 		atmInitialFunds.put(Integer.valueOf(10), Integer.valueOf(100));
 		atmInitialFunds.put(Integer.valueOf(20), Integer.valueOf(50));
 		atmInitialFunds.put(Integer.valueOf(50), Integer.valueOf(20));
 		final AutomatedTellerMachine atm = new AutomatedTellerMachine(atmInitialFunds);
-		assert(atm.getCashAvailable() == 3000);
+		assertEquals(3000, atm.getCashAvailable());
 		final int[] expectedNoteCounts = new int[]{100, 50, 20};
 		assertNotesMap(atm.getNotesAvailable(), expectedNoteCounts);
 
 		final ATMStatusResponse atmStatusResponse = new ATMStatusResponse(atm);
-		assert(atmStatusResponse.getFundsAvailable() == 3000);
+		assertEquals(3000, atmStatusResponse.getFundsAvailable());
 		assertNotesMap(atmStatusResponse.getNoteDenominationsAvailable(), expectedNoteCounts);
 	}
 
@@ -119,16 +128,14 @@ public class DockerAtmApplicationTests {
 	 *                           (e.g. €5 is first, and the largest note is last)
 	 * @return true if the note counts match what was expected, false if not.
 	 */
-	private boolean assertNotesMap(final Map<Integer, Integer> notesMap, final int[] expectedNoteCounts) {
+	private void assertNotesMap(final Map<Integer, Integer> notesMap, final int[] expectedNoteCounts) {
 		final Iterator<Map.Entry<Integer, Integer>> iteratoredNoteCounts = notesMap.entrySet().iterator();
 		int index = 0;
 		while(iteratoredNoteCounts.hasNext()) {
 			final Map.Entry<Integer, Integer> noteCounts = iteratoredNoteCounts.next();
 			final Integer expectedNoteCount = Integer.valueOf(expectedNoteCounts[index]);
-			if(!noteCounts.getValue().equals(expectedNoteCount)) {
-				return false;
-			}
+			assertEquals(noteCounts.getValue(), expectedNoteCount);
+			index++;
 		}
-		return true;
 	}
 }
