@@ -2,14 +2,15 @@ package cumiskey.ciaran.DockerATM;
 
 import cumiskey.ciaran.DockerATM.apiobjects.ATMStatusResponse;
 import cumiskey.ciaran.DockerATM.model.Customer;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
 import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-@Test()
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class DockerAtmApplicationTests {
 
 	@Test

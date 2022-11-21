@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '2.7.4'
 	id 'io.spring.dependency-management' version '1.0.14.RELEASE'
 	id 'java'
+	id 'maven-publish'
 }
 
 group = 'cumiskey.ciaran'
@@ -24,6 +25,7 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.postgresql/postgresql
 	implementation group: 'org.postgresql', name: 'postgresql', version: '42.5.0'
 
+	testImplementation 'junit:junit:4.13'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.testcontainers:junit-jupiter'
 	// https://mvnrepository.com/artifact/org.testng/testng
@@ -39,4 +41,24 @@ dependencyManagement {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+test {
+	useJUnitPlatform()
+	maxHeapSize = '1G'
+}
+
+publishing {
+	publications {
+		dockerAtm(MavenPublication) {
+			from components.java
+		}
+	}
+
+	repositories {
+		maven {
+			name = 'sampleRepo'
+			url = layout.buildDirectory.dir("repo")
+		}
+	}
 }
